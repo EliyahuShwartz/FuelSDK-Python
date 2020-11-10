@@ -5,7 +5,7 @@ from FuelSDK.rest import ET_CUDSupport,ET_CUDSupportRest,ET_GetSupport,ET_Get,ET
 ##  wrap an Exact Target Content Area
 ##
 ########
-class ET_ContentArea(ET_CUDSupport):    
+class ET_ContentArea(ET_CUDSupport):
     def __init__(self):
         super(ET_ContentArea, self).__init__()
         self.obj_type = 'ContentArea'
@@ -15,7 +15,7 @@ class ET_ContentArea(ET_CUDSupport):
 ##  wrap an Exact Target DataFolder
 ##
 ########
-class ET_Folder(ET_CUDSupport): 
+class ET_Folder(ET_CUDSupport):
     def __init__(self):
         super(ET_Folder, self).__init__()
         self.obj_type = 'DataFolder'
@@ -25,13 +25,13 @@ class ET_Folder(ET_CUDSupport):
 ##    wrap an Exact Target PropertyDefinition
 ##
 ########
-class ET_ProfileAttribute():    
+class ET_ProfileAttribute():
     def __init__(self):
         self.obj_type = 'PropertyDefinition'
         self.update = False
         self.delete = False
 
-    def post(self):       
+    def post(self):
         obj = ET_Configure(self.auth_stub, self.obj_type, self.props, self.update, self.delete)
         if obj is not None:
             self.last_request_id = obj.request_id
@@ -48,7 +48,7 @@ class ET_ProfileAttribute():
 class ET_BounceEvent(ET_GetSupport):
     def __init__(self):
         self.obj_type = 'BounceEvent'
-     
+
 ########
 ##
 ##  wrap an Exact Target Campaign and associated Assets
@@ -60,21 +60,21 @@ class ET_Campaign(ET_CUDSupportRest):
         self.path = '/hub/v1/campaigns/{id}'
         self.urlProps = ["id"]
         self.urlPropsRequired = []
-        
+
     ##the patch rest service is not implemented for campaigns yet.  use post instead and remove this when patch is implemented on the back end
     def patch(self):
         self.path = '/hub/v1/campaigns'  #don't put the id on the url when patching via post
         obj = super(ET_Campaign, self).post()
         self.path = '/hub/v1/campaigns/{id}' #but set it back to the url with id for other operations to continue working
         return obj
-    
+
 class ET_Campaign_Asset(ET_CUDSupportRest):
     def __init__(self):
         super(ET_Campaign_Asset, self).__init__()
         self.path = '/hub/v1/campaigns/{id}/assets/{assetId}'
         self.urlProps = ["id", "assetId"]
         self.urlPropsRequired = ["id"]
-        
+
 ########
 ##
 ##  wrap an Exact Target Click Event
@@ -84,7 +84,7 @@ class ET_ClickEvent(ET_GetSupport):
     def __init__(self):
         super(ET_ClickEvent, self).__init__()
         self.obj_type = 'ClickEvent'
-        
+
 ########
 ##
 ##  wrap an Exact Target List and List Subscriber
@@ -157,14 +157,14 @@ class ET_Subscriber(ET_CUDSupport):
     def __init__(self):
         super(ET_Subscriber, self).__init__()
         self.obj_type = 'Subscriber'
-        
+
 class ET_DataExtension(ET_CUDSupport):
     columns = None
-    
+
     def __init__(self):
         super(ET_DataExtension, self).__init__()
-        self.obj_type = 'DataExtension' 
-    
+        self.obj_type = 'DataExtension'
+
     def post(self):
         originalProps = self.props
 
@@ -172,22 +172,22 @@ class ET_DataExtension(ET_CUDSupport):
             multiDE = []
             for currentDE in self.props:
                 currentDE['Fields'] = {}
-                currentDE['Fields']['Field'] = []               
-                for key in currentDE['columns']:                    
+                currentDE['Fields']['Field'] = []
+                for key in currentDE['columns']:
                     currentDE['Fields']['Field'].append(key)
                 del currentDE['columns']
                 multiDE.append(currentDE.copy())
-        
+
             self.props = multiDE
         else:
             self.props['Fields'] = {}
             self.props['Fields']['Field'] = []
-            
-            for key in self.columns:        
+
+            for key in self.columns:
                 self.props['Fields']['Field'].append(key)
-        
+
         obj = super(ET_DataExtension, self).post()
-        self.props = originalProps  
+        self.props = originalProps
         return obj
 
     def patch(self):
@@ -196,21 +196,21 @@ class ET_DataExtension(ET_CUDSupport):
         for key in self.columns:
             self.props['Fields']['Field'].append(key)
         obj = super(ET_DataExtension, self).patch()
-        del self.props["Fields"]         
+        del self.props["Fields"]
         return obj
-    
+
 class ET_DataExtension_Column(ET_GetSupport):
     def __init__(self):
         super(ET_DataExtension_Column, self).__init__()
         self.obj = 'DataExtensionField'
-        
+
     def get(self):
         '''
         if props and props.is_a? Array then
             @props = props
         end
         '''
-        
+
         if self.props is not None and type(self.props) is dict:
             self.props = self.props.keys()
 
@@ -219,7 +219,7 @@ class ET_DataExtension_Column(ET_GetSupport):
             @filter = filter
         end
         '''
-                
+
         '''             
         fixCustomerKey = False
         if filter and filter.is_a? Hash then
@@ -230,26 +230,26 @@ class ET_DataExtension_Column(ET_GetSupport):
             end 
         end
         '''
-        
-        obj = ET_Get(self.auth_stub, self.obj, self.props, self.search_filter)                      
-        self.last_request_id = obj.request_id   
-        
+
+        obj = ET_Get(self.auth_stub, self.obj, self.props, self.search_filter)
+        self.last_request_id = obj.request_id
+
         ''' 
         if fixCustomerKey then
             @filter["Property"] = "CustomerKey"
         end 
         '''
-            
+
         return obj
 
 class ET_DataExtension_Row(ET_CUDSupport):
     Name = None
-    CustomerKey = None      
-                
-    def __init__(self):                             
+    CustomerKey = None
+
+    def __init__(self):
         super(ET_DataExtension_Row, self).__init__()
         self.obj_type = "DataExtensionObject"
-        
+
     def get(self):
         self.getName()
         '''
@@ -257,7 +257,7 @@ class ET_DataExtension_Row(ET_CUDSupport):
             @props = props
         end
         '''
-        
+
         if self.props is not None and type(self.props) is dict:
             self.props = self.props.keys()
 
@@ -266,82 +266,49 @@ class ET_DataExtension_Row(ET_CUDSupport):
             @filter = filter
         end
         '''
-            
-        obj = ET_Get(self.auth_stub, "DataExtensionObject[{0}]".format(self.Name), self.props, self.search_filter)                      
-        self.last_request_id = obj.request_id               
-            
+
+        obj = ET_Get(self.auth_stub, "DataExtensionObject[{0}]".format(self.Name), self.props, self.search_filter)
+        self.last_request_id = obj.request_id
+
         return obj
-        
+
     def post(self):
         self.getCustomerKey()
         originalProps = self.props
-        
-        if type(self.props) is list:
-            currentPropList = []
-            for rec in self.props:
-                currentFields = []
-                currentProp = {}
-                
-                for key, value in rec.items():
-                    currentFields.append({"Name" : key, "Value" : value})
-                
-                currentProp['CustomerKey'] = self.CustomerKey
-                currentProp['Properties'] = {}
-                currentProp['Properties']['Property'] = currentFields
-                
-                currentPropList.append(currentProp)
-            
-            currentProp = currentPropList
-
-        else:
-            currentFields = []
-            currentProp = {}
-                
-            for key, value in self.props.items():
-                currentFields.append({"Name" : key, "Value" : value})
-
-            currentProp['CustomerKey'] = self.CustomerKey
-            currentProp['Properties'] = {}
-            currentProp['Properties']['Property'] = currentFields   
-
-        obj = ET_Post(self.auth_stub, self.obj_type, currentProp)   
-        self.props = originalProps
-        return obj
-        
-    def patch(self): 
-        self.getCustomerKey()
 
         if type(self.props) is list:
             currentPropList = []
             for rec in self.props:
                 currentFields = []
                 currentProp = {}
-                
+
                 for key, value in rec.items():
                     currentFields.append({"Name" : key, "Value" : value})
-                
+
                 currentProp['CustomerKey'] = self.CustomerKey
                 currentProp['Properties'] = {}
                 currentProp['Properties']['Property'] = currentFields
-                
+
                 currentPropList.append(currentProp)
-            
+
             currentProp = currentPropList
+
         else:
             currentFields = []
             currentProp = {}
-            
+
             for key, value in self.props.items():
                 currentFields.append({"Name" : key, "Value" : value})
-            
+
             currentProp['CustomerKey'] = self.CustomerKey
             currentProp['Properties'] = {}
             currentProp['Properties']['Property'] = currentFields
-            
-        obj = ET_Patch(self.auth_stub, self.obj_type, currentProp)
+
+        obj = ET_Post(self.auth_stub, self.obj_type, currentProp)
+        self.props = originalProps
         return obj
-    
-    def delete(self): 
+
+    def patch(self):
         self.getCustomerKey()
 
         if type(self.props) is list:
@@ -349,58 +316,106 @@ class ET_DataExtension_Row(ET_CUDSupport):
             for rec in self.props:
                 currentFields = []
                 currentProp = {}
-                
+
                 for key, value in rec.items():
                     currentFields.append({"Name" : key, "Value" : value})
-                
+
                 currentProp['CustomerKey'] = self.CustomerKey
-                currentProp['Keys'] = {}
-                currentProp['Keys']['Key'] = currentFields
-                
+                currentProp['Properties'] = {}
+                currentProp['Properties']['Property'] = currentFields
+
                 currentPropList.append(currentProp)
-            
+
             currentProp = currentPropList
         else:
             currentFields = []
             currentProp = {}
-                
+
             for key, value in self.props.items():
                 currentFields.append({"Name" : key, "Value" : value})
-    
+
+            currentProp['CustomerKey'] = self.CustomerKey
+            currentProp['Properties'] = {}
+            currentProp['Properties']['Property'] = currentFields
+
+        obj = ET_Patch(self.auth_stub, self.obj_type, currentProp)
+        return obj
+
+    def delete(self):
+        self.getCustomerKey()
+
+        if type(self.props) is list:
+            currentPropList = []
+            for rec in self.props:
+                currentFields = []
+                currentProp = {}
+
+                for key, value in rec.items():
+                    currentFields.append({"Name" : key, "Value" : value})
+
+                currentProp['CustomerKey'] = self.CustomerKey
+                currentProp['Keys'] = {}
+                currentProp['Keys']['Key'] = currentFields
+
+                currentPropList.append(currentProp)
+
+            currentProp = currentPropList
+        else:
+            currentFields = []
+            currentProp = {}
+
+            for key, value in self.props.items():
+                currentFields.append({"Name" : key, "Value" : value})
+
             currentProp['CustomerKey'] = self.CustomerKey
             currentProp['Keys'] = {}
             currentProp['Keys']['Key'] = currentFields
-            
+
         obj = ET_Delete(self.auth_stub, self.obj_type, currentProp)
         return obj
-    
+
     def getCustomerKey(self):
         if self.CustomerKey is None:
-            if self.Name is None:    
-                raise Exception('Unable to process DataExtension::Row request due to CustomerKey and Name not being defined on ET_DatExtension::row')   
+            if self.Name is None:
+                raise Exception('Unable to process DataExtension::Row request due to CustomerKey and Name not being defined on ET_DatExtension::row')
             else:
                 de = ET_DataExtension()
                 de.auth_stub = self.auth_stub
                 de.props = ["Name","CustomerKey"]
                 de.search_filter = {'Property' : 'CustomerKey','SimpleOperator' : 'equals','Value' : self.Name}
                 getResponse = de.get()
-                if getResponse.status and len(getResponse.results) == 1 and 'CustomerKey' in getResponse.results[0]: 
+                if getResponse.status and len(getResponse.results) == 1 and 'CustomerKey' in getResponse.results[0]:
                     self.CustomerKey = getResponse.results[0]['CustomerKey']
                 else:
                     raise Exception('Unable to process DataExtension::Row request due to unable to find DataExtension based on Name')
-                    
-                
+
+
     def getName(self):
         if self.Name is None:
             if self.CustomerKey is None:
-                raise Exception('Unable to process DataExtension::Row request due to CustomerKey and Name not being defined on ET_DatExtension::row')   
+                raise Exception('Unable to process DataExtension::Row request due to CustomerKey and Name not being defined on ET_DatExtension::row')
             else:
                 de = ET_DataExtension()
                 de.auth_stub = self.auth_stub
                 de.props = ["Name","CustomerKey"]
                 de.search_filter = {'Property' : 'CustomerKey','SimpleOperator' : 'equals','Value' : self.CustomerKey}
                 getResponse = de.get()
-                if getResponse.status and len(getResponse.results) == 1 and 'Name' in getResponse.results[0]: 
+                if getResponse.status and len(getResponse.results) == 1 and 'Name' in getResponse.results[0]:
                     self.Name = getResponse.results[0]['Name']
                 else:
-                    raise Exception('Unable to process DataExtension::Row request due to unable to find DataExtension based on CustomerKey')
+                    raise Exception(
+                        'Unable to process DataExtension::Row request due to unable to find DataExtension based on CustomerKey')
+
+
+########
+class ET_DataExtension_Rows(ET_CUDSupportRest):
+
+    def __init__(self,external_id):
+        super(ET_DataExtension_Rows, self).__init__()
+        self.path = f'hub/v1/dataevents/key:{external_id}/rowset'
+        self.urlProps = ["key"]
+        self.urlPropsRequired = []
+
+    def post(self):
+        obj = super(ET_DataExtension_Rows, self).post()
+        return obj

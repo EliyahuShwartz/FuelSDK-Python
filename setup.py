@@ -1,18 +1,18 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
-with open('README.md') as f:
+with open('README.md', encoding="utf-8") as f:
     readme = f.read()
 
 setup(
-    version='1.3.0',
-    name='Salesforce-FuelSDK',
+    version='1.4.62',
+    name='Salesforce-FuelSDK-Extended',
     description='Salesforce Marketing Cloud Fuel SDK for Python',
     long_description=readme,
     long_description_content_type="text/markdown",
-    author='ExactTarget',
+    author='ExactTarget,Eliyahu Schwarz',
     py_modules=['ET_Client'],
-    packages=['FuelSDK'],
-    url='https://github.com/salesforce-marketingcloud/FuelSDK-Python',
+    packages=find_packages(),
+    url='https://github.com/EliyahuShwartz/FuelSDK-Python',
     license='MIT',
     install_requires=[
         'pyjwt>=1.5.3',

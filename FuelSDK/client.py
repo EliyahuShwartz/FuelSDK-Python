@@ -19,31 +19,30 @@ class ET_Client(object):
     Setup web service connectivity by getting need config data, security tokens etc.
     """
 
-    debug = False
-    client_id = None
-    client_secret = None
-    appsignature = None
-    wsdl_file_url = None
-    authToken = None
-    internalAuthToken = None
-    authTokenExpiration = None  #seconds since epoch that the current jwt token will expire
-    refreshKey = None
-    endpoint = None
-    authObj = None
-    soap_client = None
-    auth_url = None
-    soap_endpoint = None
-    soap_cache_file = "soap_cache_file.json"
-    use_oAuth2_authentication = None
-    account_id = None
-    scope = None
-    application_type = None
-    authorization_code = None
-    redirect_URI = None
-
     ## get_server_wsdl - if True and a newer WSDL is on the server than the local filesystem retrieve it
     def __init__(self, get_server_wsdl = False, debug = False, params = None, tokenResponse=None):
         self.debug = debug
+        debug = False
+        self.client_id = None
+        self.client_secret = None
+        self.appsignature = None
+        self.wsdl_file_url = None
+        self.authToken = None
+        self.internalAuthToken = None
+        self.authTokenExpiration = None  #seconds since epoch that the current jwt token will expire
+        self.refreshKey = None
+        self.endpoint = None
+        self.authObj = None
+        self.soap_client = None
+        self.auth_url = None
+        self.soap_endpoint = None
+        self.soap_cache_file = "soap_cache_file.json"
+        self.use_oAuth2_authentication = None
+        self.account_id = None
+        self.scope = None
+        self.application_type = None
+        self.authorization_code = None
+        self.redirect_URI = None
         if debug:
             logging.basicConfig(level=logging.INFO)
             logging.getLogger('suds.client').setLevel(logging.DEBUG)

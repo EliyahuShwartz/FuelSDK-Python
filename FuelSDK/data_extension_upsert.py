@@ -93,12 +93,12 @@ class SalesforceConnector:
         sent_successfully = False
 
         try:
-            retry_count = self.sending_retry
+            retry_count = 0
             sleep_time = 4
 
             de_logger.debug(f'sending request :{de.get()} for the {retry_count} time, approximate size: {sys.getsizeof(de.get())}')
 
-            while not sent_successfully and retry_count < 5:
+            while not sent_successfully and retry_count < self.sending_retry:
 
                 if isinstance(de, DESync):
                     results = de_row.post()

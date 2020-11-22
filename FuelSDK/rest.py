@@ -12,7 +12,7 @@ import copy
 ########
 class ET_Constructor(object):
 
-    def __init__(self, response=None, rest=False):
+    def __init__(self, response = None, rest = False):
 
         self.results = []
         self.code = None
@@ -33,11 +33,11 @@ class ET_Constructor(object):
                 except:
                     self.message = response.json()
 
-                # additional parsing will happen in the child object that called in to here.
+                #additional parsing will happen in the child object that called in to here.
 
-            else:  # soap call
-                self.code = response[0]  # suds puts the code in tuple position 0
-                body = response[1]  # and the result in tuple position 1
+            else:   #soap call
+                self.code = response[0] #suds puts the code in tuple position 0
+                body = response[1]  #and the result in tuple position 1
 
                 # Store the Last Request ID for use with continue
                 if body and 'RequestID' in body:
@@ -457,7 +457,7 @@ class ET_GetSupportRest(ET_BaseObject):
         self.lastPageNumber = None
         super
 
-    def get(self, props=None):
+    def get(self, props = None):
         if props is not None and type(props) is dict:
             self.props = props
 

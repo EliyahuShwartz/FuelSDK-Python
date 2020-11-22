@@ -452,3 +452,16 @@ class ET_DataExtension_Rows(ET_CUDSupportRest):
         self.path = f'hub/v1/dataevents/key:{self.external_id}/rowset'
         obj = super(ET_DataExtension_Rows, self).post()
         return obj
+
+
+class ET_Async_StatusResult(ET_CUDSupportRest):
+
+    def get_status(self, request_id):
+        self.path = f'data/v1/async/{request_id}/status'
+        obj = super(ET_Async_StatusResult, self).get()
+        return obj
+
+    def get_result(self, request_id):
+        self.path = f'data/v1/async/{request_id}/result'
+        obj = super(ET_Async_StatusResult, self).get()
+        return obj

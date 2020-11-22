@@ -1,3 +1,4 @@
+import copy
 import logging
 import sys
 import time
@@ -89,18 +90,18 @@ class SalesforceConnector:
         de_row = FuelSDK.ET_DataExtension_Rows(self.de_external_key)
         de_row.auth_stub = self.client
         de_row.Name = self.de_name
-        de_row.props = de.get()
+        de_row.props = de
         sent_successfully = False
 
-        try:
-            retry_count = 0
-            sleep_time = 4
+        retry_count = 0
+        sleep_time = 4
 
-            de_logger.debug(f'sending request :{de.get()} for the {retry_count} time, approximate size: {sys.getsizeof(de.get())}')
+        de_logger.debug(f'sending request :{de} for the {retry_count} time, approximate size: {sys.getsizeof(de)}')
 
-            while not sent_successfully and retry_count < self.sending_retry:
+        while not sent_successfully and retry_count < self.sending_retry:
 
-                if isinstance(de, DESync):
+            try:
+                if isinstance(de, list):
                     results = de_row.post()
                 else:
                     results = de_row.put()
@@ -110,15 +111,15 @@ class SalesforceConnector:
                 de_logger.debug(f'Result : {results.results}')
 
                 if not sent_successfully:
-                    retry_count += 1
                     de_logger.warning(f'request were failed with status code {results.code}, sleeping for :{sleep_time} sec')
                     time.sleep(sleep_time)
                     sleep_time *= 2
                 else:
                     return results.results
-
-        except Exception as e:
-            de_logger.error(e)
+            except Exception as e:
+                de_logger.error(e)
+            finally:
+                retry_count += 1
 
     def stream_data_extension_using_async(self, build_de, offset=0, rate=100) -> dict:
         return self.__stream_data_extension(DEAsync(build_de), offset, rate)
@@ -149,7 +150,7 @@ class SalesforceConnector:
                     for item in next_chunk:
                         data_extension.append(item)
 
-                    futures.add(pool.submit(self._update_data_extension_rows, de=data_extension))
+                    futures.add(pool.submit(self._update_data_extension_rows, de=copy.deepcopy(data_extension.get())))
 
                     while len(futures) > max_pending:
                         completed_tasks, futures = wait(futures, None, FIRST_COMPLETED)
@@ -189,7 +190,7 @@ class SalesforceConnector:
         with ThreadPoolExecutor(max_workers=self.threads_size) as pool_v2:
 
             for request_id in requests_ids:
-                futures.add(pool_v2.submit(self.verify_request, request_id))
+                futures.add(pool_v2.submit(self.verify_request, request_id['requestId']))
 
                 while len(futures) > max_pending:
                     completed_tasks, futures = wait(futures, None, FIRST_COMPLETED)
@@ -201,7 +202,7 @@ class SalesforceConnector:
         results = dict()
 
         for index, task in enumerate(all_completed_tasks):
-            results[request_id[index]] = task.result()
+            results[requests_ids[index]['requestId']] = task.result()
 
         return results
 

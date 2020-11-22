@@ -457,11 +457,17 @@ class ET_DataExtension_Rows(ET_CUDSupportRest):
 class ET_Async_StatusResult(ET_CUDSupportRest):
 
     def get_status(self, request_id):
+        self.props = None
+        self.urlProps = []
+        self.urlPropsRequired = []
         self.path = f'data/v1/async/{request_id}/status'
         obj = super(ET_Async_StatusResult, self).get()
         return obj
 
     def get_result(self, request_id):
+        self.props = None
+        self.urlProps = []
+        self.urlPropsRequired = []
         self.path = f'data/v1/async/{request_id}/result'
         obj = super(ET_Async_StatusResult, self).get()
         return obj

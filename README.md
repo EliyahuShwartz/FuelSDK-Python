@@ -232,19 +232,20 @@ Find more sample files that illustrate using all of the available functions for 
 
 Sample List:
 
-* [BounceEvent](https://github.com/salesforce-marketingcloud/FuelSDK-Python/tree/master/objsamples/sample_bounceevent.py)
-* [Campaign](https://github.com/salesforce-marketingcloud/FuelSDK-Python/tree/master/objsamples/sample_campaign.py)
-* [ClickEvent](https://github.com/salesforce-marketingcloud/FuelSDK-Python/tree/master/objsamples/sample_clickevent.py)
-* [ContentArea](https://github.com/salesforce-marketingcloud/FuelSDK-Python/tree/master/objsamples/sample_contentarea.py)
-* [DataExtension](https://github.com/salesforce-marketingcloud/FuelSDK-Python/tree/master/objsamples/sample_dataextension.py)
-* [Email](https://github.com/salesforce-marketingcloud/FuelSDK-Python/tree/master/objsamples/sample_email.py)
-* [List](https://github.com/salesforce-marketingcloud/FuelSDK-Python/tree/master/objsamples/sample_list.py)
-* [List > Subscriber](https://github.com/salesforce-marketingcloud/FuelSDK-Python/tree/master/objsamples/sample_list_subscriber.py)
-* [OpenEvent](https://github.com/salesforce-marketingcloud/FuelSDK-Python/tree/master/objsamples/sample_openevent.py)
-* [SentEvent](https://github.com/salesforce-marketingcloud/FuelSDK-Python/tree/master/objsamples/sample_sentevent.py)
-* [Subscriber](https://github.com/salesforce-marketingcloud/FuelSDK-Python/tree/master/objsamples/sample_subscriber.py)
-* [TriggeredSend](https://github.com/salesforce-marketingcloud/FuelSDK-Python/tree/master/objsamples/sample_triggeredsend.py)
-* [UnsubEvent](https://github.com/salesforce-marketingcloud/FuelSDK-Python/tree/master/objsamples/sample_unsubevent.py)
+* [BounceEvent](https://github.com/EliyahuShwartz/FuelSDK-Python/tree/master/objsamples/sample_bounceevent.py)
+* [Campaign](https://github.com/EliyahuShwartz/FuelSDK-Python/tree/master/objsamples/sample_campaign.py)
+* [ClickEvent](https://github.com/EliyahuShwartz/FuelSDK-Python/tree/master/objsamples/sample_clickevent.py)
+* [ContentArea](https://github.com/EliyahuShwartz/FuelSDK-Python/tree/master/objsamples/sample_contentarea.py)
+* [DataExtension](https://github.com/EliyahuShwartz/FuelSDK-Python/tree/master/objsamples/sample_dataextension.py)
+* [Email](https://github.com/EliyahuShwartz/FuelSDK-Python/tree/master/objsamples/sample_email.py)
+* [List](https://github.com/EliyahuShwartz/FuelSDK-Python/tree/master/objsamples/sample_list.py)
+* [List > Subscriber](https://github.com/EliyahuShwartz/FuelSDK-Python/tree/master/objsamples/sample_list_subscriber.py)
+* [OpenEvent](https://github.com/EliyahuShwartz/FuelSDK-Python/tree/master/objsamples/sample_openevent.py)
+* [SentEvent](https://github.com/EliyahuShwartz/FuelSDK-Python/tree/master/objsamples/sample_sentevent.py)
+* [Subscriber](https://github.com/EliyahuShwartz/FuelSDK-Python/tree/master/objsamples/sample_subscriber.py)
+* [TriggeredSend](https://github.com/EliyahuShwartz/FuelSDK-Python/tree/master/objsamples/sample_triggeredsend.py)
+* [UnsubEvent](https://github.com/EliyahuShwartz/FuelSDK-Python/tree/master/objsamples/sample_unsubevent.py)
+* [StreamDataExtension](https://github.com/EliyahuShwartz/FuelSDK-Python/tree/master/objsamples/sample_stream_data_extension.py)
 
 
 You can also download a copy of wsdl file from the obsamples directory and mention its path in the config file (config.python) like below:  

@@ -21,7 +21,7 @@ class DataCollector:
         """
         pass
 
-    def read_total_count(self) -> int:
+    def read_total_count(self, offset, limit) -> int:
         """
         :return: count of total rows
         """
@@ -121,28 +121,29 @@ class SalesforceConnector:
             finally:
                 retry_count += 1
 
-    def stream_data_extension_using_async(self, build_de, offset=0, rate=100) -> dict:
-        return self.__stream_data_extension(DEAsync(build_de), offset, rate)
+    def stream_data_extension_using_async(self, build_de, offset=0, rate=1000, limit='ALL') -> dict:
+        return self.__stream_data_extension(DEAsync(build_de), offset, rate, limit)
 
-    def stream_data_extension_using_sync(self, build_de, offset=0, rate=100) -> dict:
-        return self.__stream_data_extension(DESync(build_de), offset, rate)
+    def stream_data_extension_using_sync(self, build_de, offset=0, rate=500, limit='ALL') -> dict:
+        return self.__stream_data_extension(DESync(build_de), offset, rate, limit)
 
-    def __stream_data_extension(self, data_extension: DERest, offset=0, rate=100) -> dict:
-        rows_count = self.data_collector.read_total_count()
+    def __stream_data_extension(self, data_extension: DERest, offset, rate, limit) -> dict:
+        rows_count = self.data_collector.read_total_count(offset, limit)
 
-        fetched_rows = offset
+        fetched_rows_with_offset = offset
         start_time = time.time()
         total_query_time = 0
         max_pending = self.threads_size
         futures = set()
         all_completed_tasks = set()
+        fetched_rows = 0
 
         with ThreadPoolExecutor(max_workers=self.threads_size) as pool:
             while fetched_rows < rows_count:
                 try:
                     query_time = time.time()
 
-                    next_chunk = self.data_collector.read_next_chunk(rate, fetched_rows)
+                    next_chunk = self.data_collector.read_next_chunk(min(rate, rows_count - fetched_rows), fetched_rows_with_offset)
 
                     query_time = time.time() - query_time
                     total_query_time += query_time
@@ -156,13 +157,13 @@ class SalesforceConnector:
                         completed_tasks, futures = wait(futures, None, FIRST_COMPLETED)
                         all_completed_tasks.update(completed_tasks)
 
+                    fetched_rows_with_offset += len(next_chunk)
                     data_extension.clear()
-                    fetched_rows += rate
 
-                    fetched_rows_offset = (fetched_rows - offset)
-                    de_logger.info(f'Fetched rows from data collector {fetched_rows_offset} : in time {query_time}')
-                    de_logger.info(f'DE send rate {fetched_rows_offset / (time.time() - start_time)} per sec')
-                    de_logger.info(f'DE send rate without data collector query time {fetched_rows_offset / (time.time() - (start_time + total_query_time))} per sec')
+                    fetched_rows = (fetched_rows_with_offset - offset)
+                    de_logger.info(f'Fetched rows from data collector {fetched_rows} : in time {query_time}')
+                    de_logger.info(f'DE send rate {fetched_rows / (time.time() - start_time)} per sec')
+                    de_logger.info(f'DE send rate without data collector query time {fetched_rows / (time.time() - (start_time + total_query_time))} per sec')
 
                 except Exception as e:
                     de_logger.warning(f'Failed to read/submit data extension: {e}')
@@ -171,14 +172,14 @@ class SalesforceConnector:
             completed_tasks, futures = wait(futures, None, ALL_COMPLETED)
             all_completed_tasks.update(completed_tasks)
 
-        de_logger.info(f'DE send rate without data collector query time {fetched_rows_offset / (time.time() - (start_time + total_query_time))} per sec')
-        de_logger.info(f'DE send rate {fetched_rows_offset / (time.time() - start_time)} per sec')
+        de_logger.info(f'DE send rate without data collector query time {fetched_rows / (time.time() - (start_time + total_query_time))} per sec')
+        de_logger.info(f'DE send rate {fetched_rows / (time.time() - start_time)} per sec')
         de_logger.info(f'DE - total send time {time.time() - start_time}')
 
         results = dict()
 
         for index, task in enumerate(all_completed_tasks):
-            results[(index * rate) + offset] = task.result()
+            results[f'{(index * rate) + offset}-{(index * rate) + offset + rate}'] = task.result()
 
         return results
 

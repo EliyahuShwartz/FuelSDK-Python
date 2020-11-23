@@ -39,4 +39,4 @@ def build_de(data):
 SalesforceConnector(client=client,
                     de_name='DATA_EXTENSION_NAME',
                     de_external_key='F21FC19B-0000-0000-0000-6C43278BF4D2',
-                    data_collector=RedshiftCollector(connection), threads_size=20).stream_data_extension_using_async(build_de=build_de, offset=0, rate=500)
+                    data_collector=RedshiftCollector(connection), threads_size=20).stream_data_extension_async(build_de=build_de, offset=0, rate=500)

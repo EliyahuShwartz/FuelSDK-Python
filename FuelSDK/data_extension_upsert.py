@@ -10,53 +10,6 @@ import FuelSDK
 de_logger = logging.getLogger('DataExtension-Rest: ')
 
 
-class DERest:
-
-    def __init__(self, build_de):
-        self.build_de = build_de
-
-    def append(self, data):
-        pass
-
-    def get(self):
-        pass
-
-    def clear(self):
-        pass
-
-
-class DESync(DERest):
-
-    def __init__(self, build_de):
-        super().__init__(build_de)
-        self.de = []
-
-    def append(self, data):
-        self.de.append(self.build_de(data))
-
-    def clear(self):
-        self.de = []
-
-    def get(self):
-        return self.de
-
-
-class DEAsync(DERest):
-
-    def __init__(self, build_de):
-        super().__init__(build_de)
-        self.de = dict(items=[])
-
-    def append(self, data):
-        self.de['items'].append(self.build_de(data))
-
-    def clear(self):
-        self.de = dict(items=[])
-
-    def get(self):
-        return self.de
-
-
 class SalesforceConnector:
 
     def __init__(self, client, de_name, de_external_key, threads_size=50, sending_retry=5):
@@ -106,18 +59,7 @@ class SalesforceConnector:
         de_logger.error(f'Request :{de} failed to sent after {retry_count} retries')
         return iterator_range, None
 
-    def stream_data_extension_async(self, build_de, iterator) -> dict:
-        """
-        :param build_de: function for building data extension that accept single item from the supply iterator
-        :param iterator: iterator that return chunk in each iteration
-        :return: dict of query range and query id
-        """
-        return self.__stream_data_extension(DEAsync(build_de), iterator)
-
-    def stream_data_extension_sync(self, build_de, iterator) -> dict:
-        return self.__stream_data_extension(DESync(build_de), iterator)
-
-    def __stream_data_extension(self, data_extension: DERest, iterator) -> dict:
+    def stream_data_extension(self, iterator) -> dict:
         start_time = time.time()
         fetched_rows = 0
         futures = set()
@@ -126,20 +68,16 @@ class SalesforceConnector:
         with ThreadPoolExecutor(max_workers=self.threads_size) as pool:
             for chunk in iterator:
                 try:
-                    for item in chunk:
-                        data_extension.append(item)
-
-                    iterator_range = f'{fetched_rows}-{fetched_rows + len(chunk)}'
-                    futures.add(pool.submit(self._update_data_extension_rows, de=copy.deepcopy(data_extension.get()), iterator_range=iterator_range))
+                    de_length = len(chunk['items']) if isinstance(chunk, dict) else len(chunk)
+                    iterator_range = f'{fetched_rows}-{fetched_rows + de_length}'
+                    futures.add(pool.submit(self._update_data_extension_rows, de=copy.deepcopy(chunk), iterator_range=iterator_range))
 
                     while len(futures) > self.threads_size:
                         completed_tasks, futures = wait(futures, None, FIRST_COMPLETED)
                         all_completed_tasks.update(completed_tasks)
 
-                    data_extension.clear()
-
-                    fetched_rows += len(chunk)
-                    de_logger.info(f'{iterator_range} DE is sent to salesforce')
+                    fetched_rows += de_length
+                    de_logger.info(f'{iterator_range} DE is send to salesforce')
                     de_logger.info(f'send rate {fetched_rows / (time.time() - start_time)} per sec')
                 except Exception as e:
                     de_logger.warning(f'Failed to read/submit data extension: {e}')

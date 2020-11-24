@@ -7,7 +7,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 
 import FuelSDK
 
-de_logger = logging.getLogger('data extension - Rest: ')
+de_logger = logging.getLogger('DataExtension-Rest: ')
 
 
 class DERest:
@@ -107,6 +107,11 @@ class SalesforceConnector:
         return iterator_range, None
 
     def stream_data_extension_async(self, build_de, iterator) -> dict:
+        """
+        :param build_de: function for building data extension that accept single item from the supply iterator
+        :param iterator: iterator that return chunk in each iteration
+        :return: dict of query range and query id
+        """
         return self.__stream_data_extension(DEAsync(build_de), iterator)
 
     def stream_data_extension_sync(self, build_de, iterator) -> dict:
@@ -155,6 +160,10 @@ class SalesforceConnector:
         return results
 
     def verify_async_requests(self, requests_ids: list) -> dict:
+        """
+        :param requests_ids: list of request ids
+        :return: dict of requests ids and their result (boolean)
+        """
         futures = set()
         all_completed_tasks = set()
         max_pending = self.threads_size
@@ -179,6 +188,10 @@ class SalesforceConnector:
         return results
 
     def verify_request(self, request_id: str):
+        """
+        :param request_id: request id
+        :return:boolean of success or failure
+        """
         de_row = FuelSDK.ET_Async_StatusResult()
         de_row.auth_stub = self.client
         result_fetching_sleep_time = 4

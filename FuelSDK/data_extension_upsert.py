@@ -4,6 +4,7 @@ import time
 from asyncio import FIRST_COMPLETED
 from concurrent.futures._base import wait, ALL_COMPLETED
 from concurrent.futures.thread import ThreadPoolExecutor
+from typing import Generator
 
 import FuelSDK
 
@@ -12,12 +13,13 @@ de_logger = logging.getLogger('DataExtension-Rest: ')
 
 class SalesforceConnector:
 
-    def __init__(self, client, de_name, de_external_key, threads_size=50, sending_retry=5):
+    def __init__(self, client, de_name, de_external_key, threads_size=50, sending_retry=5, chunk_size=3000):
         self.de_external_key = de_external_key
         self.de_name = de_name
         self.client = client
         self.threads_size = threads_size
         self.sending_retry = sending_retry
+        self.chunk_size = chunk_size
 
     def _update_data_extension_rows(self, de, iterator_range):
 
@@ -59,14 +61,27 @@ class SalesforceConnector:
         de_logger.error(f'Request :{de} failed to sent after {retry_count} retries')
         return iterator_range, None
 
-    def stream_data_extension(self, iterator) -> dict:
+    def chunk_grouper(self, generator):
+        group = []
+        for item in generator:
+            group.append(item)
+            if len(group) == self.chunk_size:
+                yield group
+                group = []
+        yield group
+
+    def stream_data_extension(self, generator: Generator) -> dict:
+        """
+        :param generator: generator of data extension
+        :return: result of dict of query range with the request id in format of : {'10-100': %RequestId}
+        """
         start_time = time.time()
         fetched_rows = 0
         futures = set()
         all_completed_tasks = set()
 
         with ThreadPoolExecutor(max_workers=self.threads_size) as pool:
-            for chunk in iterator:
+            for chunk in self.chunk_grouper(generator):
                 try:
                     de_length = len(chunk['items']) if isinstance(chunk, dict) else len(chunk)
                     iterator_range = f'{fetched_rows}-{fetched_rows + de_length}'
